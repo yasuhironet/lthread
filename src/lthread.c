@@ -531,7 +531,7 @@ void
 lthread_set_funcname(const char *f)
 {
     struct lthread *lt = lthread_get_sched()->current_lthread;
-    strncpy(lt->funcname, f, 64);
+    strncpy(lt->funcname, f, sizeof (lt->funcname) - 1);
 }
 
 uint64_t
