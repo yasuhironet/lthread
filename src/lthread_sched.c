@@ -103,15 +103,21 @@ _lthread_poll(void)
     }
 
 
-    while (1) {
-        ret = _lthread_poller_poll(t);
-        if (ret == -1 && errno == EINTR) {
-            continue;
-        } else if (ret == -1) {
+    ret = _lthread_poller_poll(t);
+    if (ret == -1) {
+        if (errno != EINTR) {
             perror("error adding events to epoll/kqueue");
             assert(0);
         }
-        break;
+        /*
+         * Interrupted by a signal. Do not retry with the same timeout:
+         * if signals keep arriving faster than the timeout (e.g., the
+         * Rx trigger realtime signal of DPDK tap PMD), the poll never
+         * expires and sleeping lthreads are never resumed. Return to
+         * the scheduler loop with no events instead, so that the
+         * expired lthreads are resumed and the timeout is recomputed.
+         */
+        ret = 0;
     }
 
     sched->nevents = 0;
