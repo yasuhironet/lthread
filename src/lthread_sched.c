@@ -93,7 +93,7 @@ _lthread_poll(void)
     if (usecs && TAILQ_EMPTY(&sched->ready)) {
         t.tv_sec =  usecs / 1000000u;
         if (t.tv_sec != 0)
-            t.tv_nsec  =  (usecs % 1000u)  * 1000000u;
+            t.tv_nsec  =  (usecs % 1000000u) * 1000u;
         else
             t.tv_nsec = usecs * 1000u;
     } else {
